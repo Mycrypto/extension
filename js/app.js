@@ -6,7 +6,7 @@ const randomColor = __webpack_require__(170);
 const urlinputbox = document.getElementById('pgpkeyurl');
 const urlinputbox2 = document.getElementById('pgpkeyurl2');
 const messagebox = document.getElementById('message');
-const button = document.getElementById('onlykey_start');
+const testbutton = document.getElementById('onlykey_start');
 var ring = new kbpgp.keyring.KeyRing;
 var sender_private_key;
 var sender_public_key;
@@ -137,8 +137,8 @@ class Pgp2go {
     }
 
 	startDecryption() {
-			button.classList.remove('error');
-			button.classList.add('working');
+			testbutton.classList.remove('error');
+			testbutton.classList.add('working');
         let keyurl = url.parse(urlinputbox.value);
         if (keyurl.hostname) { // Check if its a url
             sender_public_key = this.downloadUrl();
@@ -152,15 +152,15 @@ class Pgp2go {
       switch (_status) {
         case 'Decrypt and Verify':
           this.loadPublic(key);
-          button.textContent = 'Decrypting and verifying message ...';
+          testbutton.textContent = 'Decrypting and verifying message ...';
           break;
         case 'Decrypt Only':
-          button.textContent = 'Decrypting message ...';
+          testbutton.textContent = 'Decrypting message ...';
           break;
         default:
       }
       this.loadPrivate();
-      button.textContent = "Decrypting message ...";
+      testbutton.textContent = "Decrypting message ...";
       kbpgp.unbox({
               keyfetch: ring,
               armored: ct
@@ -168,7 +168,7 @@ class Pgp2go {
           if (err)
               return void this.showError(err);
 
-          button.textContent = "Done :)";
+          testbutton.textContent = "Done :)";
           messagebox.value = ct;
           messagebox.focus();
           messagebox.select();
@@ -183,16 +183,16 @@ class Pgp2go {
               var userid = recipient_public_key.userids[0].components.email.split("@")[0];
               console.log(keyid);
               console.log(userid);
-              button.textContent = "Done :)    Signed by " + userid + " (Key ID: " + keyid + ")";
+              testbutton.textContent = "Done :)    Signed by " + userid + " (Key ID: " + keyid + ")";
             }
-          button.classList.remove("working")
+          testbutton.classList.remove("working")
 
       });
   }
 
   startEncryption() {
-      button.classList.remove('error');
-      button.classList.add('working');
+      testbutton.classList.remove('error');
+      testbutton.classList.add('working');
       if (urlinputbox.value == "" && (_status=='Encrypt and Sign' || _status=='Encrypt Only')) {
           this.showError(new Error("I need recipient's public pgp key :("));
           return;
@@ -220,7 +220,7 @@ class Pgp2go {
   }
 
   downloadPublicKey(url) {
-      button.textContent = 'Downloading public key ...';
+      testbutton.textContent = 'Downloading public key ...';
       request
           .get(url)
           .end((err, key) => {
@@ -244,7 +244,7 @@ class Pgp2go {
             encrypt_for: recipient_public_key,
             sign_with: sender_private_key
           };
-          button.textContent = 'Encrypting and signing message ...';
+          testbutton.textContent = 'Encrypting and signing message ...';
           break;
         case 'Encrypt Only':
           this.loadPublic(key1);
@@ -252,7 +252,7 @@ class Pgp2go {
             msg: msg,
             encrypt_for: recipient_public_key
           };
-          button.textContent = 'Encrypting message ...';
+          testbutton.textContent = 'Encrypting message ...';
           break;
         case 'Sign Only':
           this.loadPublicSignerID(key2);
@@ -261,7 +261,7 @@ class Pgp2go {
             msg: msg,
             sign_with: sender_private_key
           };
-          button.textContent = 'Signing message ...';
+          testbutton.textContent = 'Signing message ...';
           break;
         default:
       }
@@ -270,18 +270,18 @@ class Pgp2go {
               this.showError(err);
               return;
           }
-          button.textContent = 'Done :)  Encrypted message copied to clipboard you can paste into an email, IM, whatever.';
+          testbutton.textContent = 'Done :)  Encrypted message copied to clipboard you can paste into an email, IM, whatever.';
           messagebox.value = results;
           messagebox.focus();
           messagebox.select();
           document.execCommand('SelectAll');
           document.execCommand("Copy", false, null);
-          button.classList.remove('working');
+          testbutton.classList.remove('working');
       });
   }
 
 loadPublic(key) {
-  button.textContent = "Checking recipient's public key...";
+  testbutton.textContent = "Checking recipient's public key...";
   if (key == "") {
     this.showError(new Error("I need recipient's public pgp key :("));
     return;
@@ -300,7 +300,7 @@ loadPublic(key) {
 }
 
 loadPublicSignerID(key) {
-  button.textContent = "Checking sender's public key...";
+  testbutton.textContent = "Checking sender's public key...";
   if (key == "") {
     this.showError(new Error("I need sender's public pgp key :("));
     return;
@@ -356,16 +356,16 @@ loadPrivate() {
 
 	showError(error) {
         console.log("error:", error);
-        button.textContent = error.message;
-        button.classList.remove('working');
-        button.classList.add('error');
+        testbutton.textContent = error.message;
+        testbutton.classList.remove('working');
+        testbutton.classList.add('error');
     }
 
 }
 
 let p2g = new Pgp2go();
 
-button.onclick = function () {
+testbutton.onclick = function () {
     console.log("status:", _status);
     switch (_status) {
         case 'Encrypt and Sign':
@@ -400,7 +400,7 @@ window.doPinTimer = function (seconds) {
       return reject(err);
     }
     if (_status === 'done_pin') {
-      button.textContent = 'Confirming PIN...';
+      testbutton.textContent = 'Confirming PIN...';
       msg(`Delay ${poll_delay} seconds`);
       return enroll_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
         msg(`Executed enroll_polling after PIN confirmation: skey = ${data}`);
@@ -416,7 +416,7 @@ window.doPinTimer = function (seconds) {
 
 function setButtonTimerMessage(seconds) {
   const msg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
-  button.textContent = msg;
+  testbutton.textContent = msg;
 }
 
 urlinputbox.onkeyup = function () {
